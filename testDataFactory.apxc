@@ -1,0 +1,178 @@
+/**
+ * This class contains unit tests for validating the behavior of Apex classes and triggers.
+ * <p>
+ * Unit tests are class methods that verify whether a particular piece
+ * of code is working properly. Unit test methods take no arguments,
+ * commit no data to the database, and are flagged with the testMethod
+ * keyword in the method definition.
+ * <p>
+ * All test methods in an organization are executed whenever Apex code is deployed
+ * to a production organization to confirm correctness, ensure code
+ * coverage, and prevent regressions. All Apex classes are
+ * required to have at least 75% code coverage in order to be deployed
+ * to a production organization. In addition, all triggers must have some code coverage.
+ * <p>
+ * The @isTest class annotation indicates this class only contains test
+ * methods. Classes defined with the @isTest annotation do not count against
+ * the organization size limit for all Apex scripts.
+ * <p>
+ * See the Apex Language Reference for more information about Testing and Code Coverage.
+ */
+@isTest
+public class testDataFactory {
+    public testDataFactory(){}
+    /** Used by testMethods to create an account for testing */
+    @TestVisible
+    private static Account generateTestAccount(){
+        Account account = new Account();
+        account.Name = 'testDataFactoryAccount' + Math.round(Math.random()*1000);
+        account.RecordTypeId=[Select id from RecordType where Name='Customer'].get(0).Id;
+        return account;
+    }
+    /** Used by testMethods to create an opportunity for testing */
+    @TestVisible
+    private static Opportunity generateTestOpportunity(Account account){
+        Opportunity opportunity = new Opportunity();
+        opportunity.Name = 'testDataFactoryOpportunity' + Math.round(Math.random()*1000);
+        opportunity.RecordTypeId=[Select id from RecordType where Name='Opportunity'].get(0).Id;
+        opportunity.AccountId = account.id;
+        opportunity.LW_Contract_Id__c = '12345678';
+        opportunity.Rate__c = 5.00;
+        opportunity.Term__c = 120;
+        opportunity.CloseDate = Date.newInstance(2015, 1, 1);
+        opportunity.StageName = 'Received';
+        return opportunity;
+    }
+    /** Used by testMethods to create a value curve for testing */
+    @TestVisible
+    private static Value_Curve__c generateTestValueCurve(){
+        Value_Curve__c valueCurve = new Value_Curve__c();
+        valueCurve.Name = 'testDataFactoryVC' + Math.round(Math.random()*1000);
+        valueCurve.VC0_M__c = 100.00;
+        valueCurve.VC12_M__c = 90.00;
+        valueCurve.VC24_M__c = 80.00;
+        valueCurve.VC36_M__c = 70.00;
+        valueCurve.VC48_M__c = 60.00;
+        valueCurve.VC60_M__c = 50.00;
+        valueCurve.VC72_M__c = 40.00;
+        valueCurve.VC84_M__c = 30.00;
+        valueCurve.VC96_M__c = 20.00;
+        valueCurve.VC108_M__c = 10.00;
+        valueCurve.VC120_M__c = 0.00;
+        return valueCurve;
+    }
+    /** Used by testMethods to create an asset for testing */
+    @TestVisible
+    private static Asset__c generateTestAsset(Opportunity opportunity, Value_Curve__c valueCurve){
+        Asset__c asset = new Asset__c(
+        	Opportunity__c = opportunity.Id,
+            Custom_Value_Curve__c = valueCurve.Id,
+            Custom_VC_Status__c = 'Approved',
+            Product__c = '01t70000002yyBn',
+            CurrencyIsoCode = 'USD',
+            Master_List_Price__c = 1000000.00,
+            Residual_Value__c = 600000.00,
+            Residual_Term__c = 120,
+            Down_Payment__c = 200000.00,
+            OEC_Selling_Price__c = 1000000.00,
+            Quantity__c = 1
+        );
+        return asset;
+    }
+    /** Used by testMethods to create a Simulation for testing */
+    @TestVisible
+    private static Simulation__c generateTestSimulation(Opportunity opportunity){
+        Simulation__c sim = new Simulation__c();
+        sim.Opportunity__c = opportunity.id;
+        sim.Amount_1__c = 100;
+        sim.Amount_2__c = 100;
+        sim.Amount_3__c = 100;
+        sim.Amount_4__c = 100;
+        sim.Amount_5__c = 100;
+        sim.Amount_6__c = 100;
+        sim.Event_1__c = 'test';
+        sim.Event_2__c = 'test';
+        sim.Event_3__c = 'test';
+        sim.Event_4__c = 'test';
+        sim.Event_5__c = 'test';
+        sim.Event_6__c = 'test';
+        sim.Date_1__c = Date.newInstance(2015, 5, 11);
+        sim.Date_2__c = Date.newInstance(2015, 5, 12);
+        sim.Date_3__c = Date.newInstance(2015, 5, 13);
+        sim.Date_4__c = Date.newInstance(2015, 5, 14);
+        sim.Date_5__c = Date.newInstance(2015, 5, 15);
+        sim.Date_6__c = Date.newInstance(2015, 5, 18);
+        sim.Number_1__c = 100;
+        sim.Number_2__c = 100;
+        sim.Number_3__c = 100;
+        sim.Number_4__c = 100;
+        sim.Number_5__c = 100;
+        sim.Number_6__c = 100;
+        sim.Is_Active__c = true;
+        return sim;
+    }
+    /** Used by testMethods to create a Simulation Template List for testing */
+    @TestVisible
+    private List<Simulation_Template__c> generateTestSimulationTemplateList(){
+        Simulation_Template__c simTemplate = new Simulation_Template__c();
+        simTemplate.Name = 'testDataFactory Simulation Template 1';
+        simTemplate.Rate__c = 5.0;
+        simTemplate.Compounding__c = 'Monthly';
+        simTemplate.Term__c = 48.0;
+        simTemplate.Year_Length__c = '360';
+        
+        simTemplate.Event_1__c = 'Loan';
+        simTemplate.Event_1_n__c = 1;
+        simTemplate.Event_1_Amount_Percent__c = 100;
+        simTemplate.Event_1_Amount_Percent_Type__c = 'Percent Selling Price';
+        
+        simTemplate.Event_2__c = 'Payment';
+        simTemplate.Event_2_n__c = 48;
+        simTemplate.Event_2_Amount_Percent_Type__c = 'Amount';
+        
+        List<Simulation_Template__c> simTemplates = new List<Simulation_Template__c>();
+        for(integer count = 2; count <= 10; count++){
+            simtemplates.add(simTemplate);
+        	simTemplate.Name = 'testDataFactory Simulation Template ' + count;
+        }
+        
+        return simTemplates;
+    }
+    /** used by testmethods to generate a simulation template */
+    @TestVisible
+    private static Simulation_Template__c generateTestSimulationTemplate(){
+        Simulation_Template__c simTemplate = new Simulation_Template__c();
+        simTemplate.Name = 'testDataFactory Simulation Template ' + (math.random() * 1000);
+        simTemplate.Rate__c = 5.0;
+        simTemplate.Compounding__c = 'Monthly';
+        simTemplate.Term__c = 48.0;
+        simTemplate.Year_Length__c = '360';
+        
+        simTemplate.Event_1__c = 'Loan';
+        simTemplate.Event_1_n__c = 1;
+        simTemplate.Event_1_Amount_Percent__c = 100;
+        simTemplate.Event_1_Amount_Percent_Type__c = 'Percent Selling Price';
+        
+        simTemplate.Event_2__c = 'Payment';
+        simTemplate.Event_2_n__c = 1;
+        simTemplate.Event_2_Amount_Percent_Type__c = 'Amount';
+        
+        simTemplate.Event_3__c = 'Payment';
+        simTemplate.Event_3_n__c = 1;
+        simTemplate.Event_3_Amount_Percent_Type__c = 'Amount';
+        
+        simTemplate.Event_4__c = 'Payment';
+        simTemplate.Event_4_n__c = 1;
+        simTemplate.Event_4_Amount_Percent_Type__c = 'Amount';
+        
+        simTemplate.Event_5__c = 'Payment';
+        simTemplate.Event_5_n__c = 1;
+        simTemplate.Event_5_Amount_Percent_Type__c = 'Amount';
+        
+        simTemplate.Event_6__c = 'Payment';
+        simTemplate.Event_6_n__c = 44;
+        simTemplate.Event_6_Amount_Percent_Type__c = 'Amount';
+        
+        return simTemplate;
+    }
+}
